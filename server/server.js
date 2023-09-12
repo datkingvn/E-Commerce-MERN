@@ -1,6 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
-
+import {dbConnect} from "./config/dbConnect.js";
 
 const app = express()
 dotenv.config()
@@ -14,5 +14,6 @@ app.use('/', (req, res) => {
 })
 
 app.listen(PORT, () => {
+    dbConnect()
     console.log('Server Running ON Port: ' + PORT)
 })

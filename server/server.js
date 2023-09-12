@@ -1,19 +1,16 @@
-import express from "express";
-import dotenv from "dotenv";
-import {dbConnect} from "./config/dbConnect.js";
+const express = require('express')
+require('dotenv').config()
+const dbConnect = require('./config/dbConnect')
+const initRoutes = require('./routes')
+
 
 const app = express()
-dotenv.config()
 const PORT = process.env.PORT || 8888
-app.use(express.json());
-app.use(express.urlencoded({extended: true}))
-
-
-app.use('/', (req, res) => {
-    res.send('Sever ONN')
-})
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+initRoutes(app)
 
 app.listen(PORT, () => {
-    dbConnect()
-    console.log('Server Running ON Port: ' + PORT)
+    dbConnect();
+    console.log('Server Running ON the Port: ' + PORT);
 })

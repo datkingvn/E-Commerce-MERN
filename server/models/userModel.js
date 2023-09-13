@@ -63,7 +63,10 @@ const userSchema = new mongoose.Schema({
 }, {timestamps: true});
 
 // Hash Password (Before save)
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) {
+        next()
+    } // Nếu trường 'password' không thay đổi => false, chuyển sang middleware tiếp theo
     const salt = bcrypt.genSaltSync(10);
     this.password = await bcrypt.hash(this.password, salt);
 })

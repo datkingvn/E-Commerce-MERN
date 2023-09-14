@@ -71,5 +71,15 @@ userSchema.pre('save', async function (next) {
     this.password = await bcrypt.hash(this.password, salt);
 })
 
+// Check Password (function (password) => password đó là người dùng nhập vào)
+userSchema.methods = {
+    isCorrectPassword: async function (password) {
+        return await bcrypt.compare(password, this.password)
+    }
+}
+
+// Cú pháp function() { } trong MongoDB đảm bảo rằng từ khóa this trong phương thức được ràng buộc đúng ngữ cảnh đối tượng hiện tại,
+// Trong khi cú pháp Arrow Function () => { } không ràng buộc được ngữ cảnh this và có thể gây ra lỗi hoặc không trả về kết quả như mong đợi.
+
 //Export the model
 module.exports = mongoose.model('User', userSchema);

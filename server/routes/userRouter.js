@@ -1,12 +1,9 @@
 const router = require('express').Router()
 const userController = require('../controllers/userController.js')
 
-
-// Create
+// Register
 router.post('/register', userController.userRegister)
-// Update
-// Delete
-// Get a User
-// Get all User
+// Login
+router.post('/login', userController.userLogin)
 
 module.exports = router

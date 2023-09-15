@@ -9,4 +9,8 @@ router.post('/login', userController.userLogin)
 // Get Single User
 router.get('/current',[isValidAccessToken], userController.getSingleUser)
 
+router.post('/refreshtoken', userController.refreshAccessToken)
+// Logout
+router.get('/logout', userController.userLogout)
+
 module.exports = router

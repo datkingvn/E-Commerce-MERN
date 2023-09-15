@@ -76,9 +76,9 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     // Check xem có token hay không
     if (!cookie && !cookie.refreshToken) throw new Error('No refreshToken in cookies')
     // Check token có hợp lệ hay không
-    const validToken = jwt.verify(cookie.refreshToken, process.env.JWT_SECRET)
+    const decodedRefreshToken = jwt.verify(cookie.refreshToken, process.env.JWT_SECRET)
     const isRefreshTokenMatched = await userModel.findOne({
-        _id: validToken._id,
+        _id: decodedRefreshToken._id,
         refreshToken: cookie.refreshToken
     })
     return res.status(200).json({

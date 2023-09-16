@@ -1,8 +1,10 @@
 const userModel = require('../models/userModel.js');
 const asyncHandler = require('express-async-handler');
 const {response} = require("express");
-const {generateAccessToken, generateRefreshToken} = require('../middlewares/jwt')
-const jwt = require('jsonwebtoken')
+const {generateAccessToken, generateRefreshToken} = require('../middlewares/jwt');
+const jwt = require('jsonwebtoken');
+const sendMail = require('../utils/sendMail')
+const crypto = require("crypto");
 
 // Register
 const userRegister = asyncHandler(async (req, res) => {
@@ -106,8 +108,59 @@ const userLogout = asyncHandler(async (req, res) => {
     })
 });
 
+//--------- Quy trình đặt lại mật khẩu như sau: -----------//
+// Client gửi email đến server để yêu cầu đặt lại mật khẩu.
+// Server kiểm tra xem email có hợp lệ không.
+// Server gửi email đến client, đi kèm với một liên kết (link) chứa mã thông báo để thay đổi mật khẩu.
+// Client kiểm tra email và nhấp vào liên kết.
+// Client gửi yêu cầu API đến server kèm theo mã thông báo.
+// Server kiểm tra xem mã Token có khớp với mã Token mà server đã gửi qua email hay không.
+// Nếu mã Token khớp, server cho phép thay đổi mật khẩu.
+//--------------------------------------------------------//
+
+const forgotPassword = asyncHandler(async (req, res) => {
+    const {email} = req.query;
+    if (!email) throw new Error('Missing Email!');
+    const user = await userModel.findOne({email});
+    if (!user) throw new Error('User Not Found');
+
+    const resetToken = user.createPasswordChangedToken();
+    await user.save()
+
+    const contentForgotPassword = `Please <a href=${process.env.URL_SERVER}/api/user/reset-password/${resetToken}>Click Here</a> to reset your password. This link will be expire after 15 minutes`
+
+    const data = {
+        email,
+        contentForgotPassword
+    }
+
+    const emailSendingResult = await sendMail(data)
+    return res.status(200).json({
+        success: !!emailSendingResult,
+        emailSendingResult
+    })
+})
+
+// Reset Password
+const resetPassword = asyncHandler(async (req, res) => {
+    const {password, token} = req.body;
+    if (!password || !token) throw new Error('Missing Input!');
+    const passwordResetToken = crypto.createHash('sha256').update(token).digest('hex');
+    const validUser = await userModel.findOne({passwordResetToken, passwordResetExpired: {$gt: Date.now()}});
+    if (!validUser) throw new Error('Invalid Reset Token');
+    validUser.password = password;
+    validUser.passwordResetToken = undefined;
+    validUser.passwordChangeAt = Date.now();
+    validUser.passwordResetExpired = undefined;
+    await validUser.save();
+    return res.status(200).json({
+        success: !!validUser,
+        msg: validUser ? 'Updated Password' : 'Somthing Went Wrong'
+    })
+})
 module.exports = {
     userRegister, userLogin, userLogout,
     getSingleUser,
-    refreshAccessToken
+    refreshAccessToken,
+    forgotPassword,resetPassword
 }

@@ -187,7 +187,7 @@ const updateUser = asyncHandler(async (req, res) => {
     // Loại bỏ trường "role" khỏi req.body tránh user update lên 'role' admin
     const {role, ...updateData} = req.body;
 
-    const updatedUserResponse = await userModel.findByIdAndUpdate(_id, updateData, {new: true}).select('-password -role');
+    const updatedUserResponse = await userModel.findByIdAndUpdate(_id, updateData, {new: true}).select('-password -role -refreshToken');
 
     return res.status(200).json({
         success: !!updatedUserResponse,

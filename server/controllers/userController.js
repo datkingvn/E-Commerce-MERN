@@ -42,7 +42,7 @@ const userLogin = asyncHandler(async (req, res) => {
 
     const authUser = await userModel.findOne({email});
     if (authUser && await authUser.isCorrectPassword(password)) {
-        const {password, role, ...userData} = authUser.toObject();
+        const {password, role, refreshToken, ...userData} = authUser.toObject();
         // Create accessToken
         const accessToken = generateAccessToken(authUser._id, role);
         // Create refreshToken
@@ -145,7 +145,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
 const resetPassword = asyncHandler(async (req, res) => {
     const {password, token} = req.body;
     if (!password || !token) throw new Error('Missing Input!');
-    const passwordResetToken = crypto.createHash('sha256').update(token).digest('hex');
+    const passwordResetToken = crypto.createHash('sha256').update(token).digest('hex'); // Hash ra cho bằng resetToken bên userModel
     const validUser = await userModel.findOne({passwordResetToken, passwordResetExpired: {$gt: Date.now()}});
     if (!validUser) throw new Error('Invalid Reset Token');
     validUser.password = password;
@@ -155,12 +155,64 @@ const resetPassword = asyncHandler(async (req, res) => {
     await validUser.save();
     return res.status(200).json({
         success: !!validUser,
-        msg: validUser ? 'Updated Password' : 'Somthing Went Wrong'
+        msg: validUser ? 'Updated Password' : 'Something Went Wrong'
     })
 })
+
+// Get all Users
+const getAllUsers = asyncHandler(async (req, res) => {
+    const getDataUsers = await userModel.find().select('-refreshToken -password -role')
+    return res.status(200).json({
+        success: !!getDataUsers,
+        user: getDataUsers
+    })
+})
+
+// Delete User
+const deleteUser = asyncHandler(async (req, res) => {
+    const {_id} = req.query
+    if (!_id) throw new Error('Missing Input ID User')
+    const response = await userModel.findByIdAndDelete(_id)
+    return res.status(200).json({
+        success: !!response,
+        deletedUser: response ? `Deleted User ${response.email} Success` : 'No User Delete!'
+    })
+})
+
+// Update User
+const updateUser = asyncHandler(async (req, res) => {
+    const {_id} = req.user;
+
+    if (!_id || Object.keys(req.body).length === 0) throw new Error('Cannot Update User - Input Invalid!');
+    // Loại bỏ trường "role" khỏi req.body tránh user update lên 'role' admin
+    const {role, ...updateData} = req.body;
+
+    const updatedUserResponse = await userModel.findByIdAndUpdate(_id, updateData, {new: true}).select('-password -role');
+
+    return res.status(200).json({
+        success: !!updatedUserResponse,
+        updatedUser: updatedUserResponse ? updatedUserResponse : 'Something Went Wrong!'
+    });
+})
+
+// Update User By Admin
+const updateUserByAdmin = asyncHandler(async (req, res) => {
+    const {uid} = req.params;
+
+    if (Object.keys(req.body).length === 0) throw new Error('Cannot Update User - Input Invalid!');
+
+    const updatedUserResponse = await userModel.findByIdAndUpdate(uid, req.body, {new: true}).select('-password -role -refreshToken');
+
+    return res.status(200).json({
+        success: !!updatedUserResponse,
+        updatedUser: updatedUserResponse ? updatedUserResponse : 'Something Went Wrong!'
+    });
+
+});
 module.exports = {
     userRegister, userLogin, userLogout,
-    getSingleUser,
+    getSingleUser, getAllUsers,
     refreshAccessToken,
-    forgotPassword,resetPassword
+    forgotPassword, resetPassword,
+    deleteUser, updateUser, updateUserByAdmin
 }

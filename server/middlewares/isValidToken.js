@@ -12,7 +12,7 @@ const isValidAccessToken = asyncHandler(async (req, res, next) => {
             if (err) {
                 return res.status(401).json({
                     success: false,
-                    mes: 'Invalid Access Token'
+                    msg: 'Invalid Access Token'
                 });
             }
             req.user = decode;
@@ -21,12 +21,20 @@ const isValidAccessToken = asyncHandler(async (req, res, next) => {
     } else {
         return res.status(401).json({
             success: false,
-            mes: 'Require Authentication!'
+            msg: 'Require Authentication!'
         });
     }
 });
 
-
+const isAdmin = asyncHandler(async (req, res, next) => {
+    const {role} = req.user;
+    if (role !== 'admin')
+        return res.status(401).json({
+            success: false,
+            msg: 'You do not have Permission!'
+        });
+    next();
+})
 module.exports = {
-    isValidAccessToken
+    isValidAccessToken, isAdmin
 }

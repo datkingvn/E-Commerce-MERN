@@ -81,7 +81,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
     const deleledProductResponse = await productModel.findByIdAndDelete(pid);
     return res.status(200).json({
         success: !!deleledProductResponse,
-        updatedProduct: deleledProductResponse ? deleledProductResponse : 'Cannot Delete Product!'
+        deletedProduct: deleledProductResponse ? deleledProductResponse : 'Cannot Delete Product!'
     })
 })
 

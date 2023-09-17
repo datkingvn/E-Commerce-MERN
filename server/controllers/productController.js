@@ -16,7 +16,7 @@ const createProduct = asyncHandler(async (req, res) => {
 // Get Single Product
 const getSingleProduct = asyncHandler(async (req, res) => {
     const {pid} = req.params;
-    const product = await productModel.findById(pid)
+    const product = await productModel.findById(pid);
     return res.status(200).json({
         success: !!product,
         productData: product ? product : 'Cannot Find Product!'
@@ -25,12 +25,44 @@ const getSingleProduct = asyncHandler(async (req, res) => {
 
 // Get All Product
 const getAllProduct = asyncHandler(async (req, res) => {
-    const products = await productModel.find();
-    return res.status(200).json({
-        success: !!products,
-        productData: products ? products : 'Cannot Get All Products!'
-    })
-})
+    const queries = {...req.query};
+    // Loại bỏ các trường đặc biệt khỏi queries
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach(element => delete queries[element]);
+
+    // Format lại các operators cho đúng cú pháp của mongoose
+    let queryString = JSON.stringify(queries); // Convert sang string
+    queryString = queryString.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`); // Thêm dấu $ sau gte|gt|lte|lt (Ex: price: { '$gt': '50000' })
+    let formatedQueries = JSON.parse(queryString); // Convert lại sang Object
+
+
+    // Filtering
+    if (queries.title) formatedQueries.title = {$regex: queries.title, $options: 'i'}; // $regex: queries.title tìm kiếm theo tên, $option: 'i' không phân biệt chữ hoa, thường
+    let queryCommand = productModel.find(formatedQueries);
+
+    // Sorting
+    if (req.query.sort) {
+        const sortBy = req.query.sort.split(',').join(' ') // Ex: abc, efg => abc efg
+        queryCommand = queryCommand.sort(sortBy)
+    };
+
+    // Execute query
+    queryCommand.exec()
+        .then(async (reponse) => {
+            const matchedProductCount = await productModel.countDocuments(formatedQueries);
+            return res.status(200).json({
+                success: true,
+                productData: reponse,
+                matchedProductCount: matchedProductCount,
+            });
+        })
+        .catch((err) => {
+            return res.status(500).json({
+                success: false,
+                error: err.message,
+            });
+        });
+});
 
 // Update Product
 const updateProduct = asyncHandler(async (req, res) => {

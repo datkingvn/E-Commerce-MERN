@@ -42,9 +42,22 @@ const getAllProduct = asyncHandler(async (req, res) => {
 
     // Sorting
     if (req.query.sort) {
-        const sortBy = req.query.sort.split(',').join(' ') // Ex: abc, efg => abc efg
-        queryCommand = queryCommand.sort(sortBy)
-    };
+        const sortBy = req.query.sort.split(',').join(' '); // Ex: abc, efg => abc efg
+        queryCommand = queryCommand.sort(sortBy);
+    }
+    ;
+
+    // Fields Limiting
+    if (req.query.fields) {
+        const fields = req.query.fields.split(',').join(' ');
+        queryCommand = queryCommand.select(fields); // Muốn lấy trường nào và không muốn lấy trường nào
+    }
+
+    // Pagination (limit: số object lấy về 1 lần gọi API, skip)
+    const page = +req.query.page || 1; // (Bỏ dấu + trước để convert thành kiểu số (number) (Ex: +2 => 2 / +ckckck => NaN)
+    const limit = +req.query.limit || process.env.LIMIT_PRODUCTS;
+    const skip = (page - 1) * limit;
+    queryCommand.skip(skip).limit(limit);
 
     // Execute query
     queryCommand.exec()
@@ -52,8 +65,8 @@ const getAllProduct = asyncHandler(async (req, res) => {
             const matchedProductCount = await productModel.countDocuments(formatedQueries);
             return res.status(200).json({
                 success: true,
-                productData: reponse,
                 matchedProductCount: matchedProductCount,
+                productData: reponse,
             });
         })
         .catch((err) => {

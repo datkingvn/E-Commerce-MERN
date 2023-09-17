@@ -98,7 +98,44 @@ const deleteProduct = asyncHandler(async (req, res) => {
     })
 })
 
+// Ratings
+const ratings = asyncHandler(async (req, res) => {
+    const {_id} = req.user;
+    const {star, comment, pid} = req.body;
+    if (!star && !pid) throw new Error('Missing Something :(');
+    const ratingProduct = await productModel.findById(pid);
+    const alreadyRating = ratingProduct?.ratings?.find(element => element.votedBy.toString() === _id);
+
+    if (alreadyRating) {
+        // update star & comment
+        //  Trong MongoDB, $set được sử dụng để cập nhật giá trị của một trường trong tài liệu. Khi muốn cập nhật một trường nằm trong một phần tử cụ thể của một mảng, ta sử dụng $ để chỉ định phần tử đó.
+        await productModel.updateOne({
+            ratings: {$elemMatch: alreadyRating}
+        }, {
+            $set: {
+                "ratings.$.star": star,
+                "ratings.$.comment": comment
+            }
+        })
+    } else {
+        // add star & comment
+        const ratingUpdateResponse = await productModel.findByIdAndUpdate(
+            // $push được sử dụng để thêm một giá trị vào một mảng đã tồn tại trong một tài liệu (document).
+            pid, {
+                $push: {
+                    ratings: {star, comment, votedBy: _id}
+                }
+            }, {new: true}
+        );
+    }
+
+    return res.status(200).json({
+        status: true
+    })
+});
+
 module.exports = {
     createProduct, getSingleProduct, getAllProduct,
-    updateProduct, deleteProduct
+    updateProduct, deleteProduct,
+    ratings
 }

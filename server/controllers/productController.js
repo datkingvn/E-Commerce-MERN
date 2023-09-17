@@ -129,8 +129,18 @@ const ratings = asyncHandler(async (req, res) => {
         );
     }
 
+    // Sum ratings
+    const updatedProduct = await productModel.findById(pid);
+    const ratingCount = updatedProduct.ratings.length;
+    // sum là giá trị tích lũy, ban đầu có giá trị là 0, element là phần tử hiện tại trong quá trình lặp.
+    const sumRatings = updatedProduct.ratings.reduce((sum, element) => sum + +element.star, 0);
+    updatedProduct.totalRatings = Math.round(sumRatings * 10 / ratingCount) / 10;
+
+    await updatedProduct.save();
+
     return res.status(200).json({
-        status: true
+        status: true,
+        updatedProduct
     })
 });
 

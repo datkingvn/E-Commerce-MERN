@@ -50,12 +50,11 @@ const likePostBlog = asyncHandler(async (req, res) => {
             success: !!removeDislike,
             result: removeDislike
         })
-    }
-    ;
+    };
 
     // B2. Check xem User trước đó có Like hay không => Bỏ Like / Nếu chưa Like => Thêm Like */
     const isLiked = postBlog?.likes?.find(element => element.toString() === _id);
-    ;
+
     if (isLiked) { // Đã Like => Bỏ Like
         const removeLike = await BlogModel.findByIdAndUpdate(bid, {$pull: {likes: _id}}, {new: true});
         return res.status(200).json({

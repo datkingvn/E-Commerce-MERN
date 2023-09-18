@@ -68,8 +68,7 @@ const likePostBlog = asyncHandler(async (req, res) => {
             success: !!addLike,
             result: addLike
         })
-    }
-    ;
+    };
 
 });
 

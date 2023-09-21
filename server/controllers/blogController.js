@@ -132,8 +132,18 @@ const deletePostBlog = asyncHandler(async (req, res) => {
     });
 })
 
+const uploadImageBlog = asyncHandler(async (req, res) => {
+    const {bid} = req.params
+    if (!req.file) throw new Error('No Image Upload');
+    const uploadImageResponse = await BlogModel.findByIdAndUpdate(bid, {image: req.file.path}, {new: true});
+    return res.status(200).json({
+        status: !!uploadImageResponse,
+        updatedProduct: uploadImageResponse ? uploadImageResponse : 'Upload Images Failed!'
+    });
+});
+
 module.exports = {
     createNewPostBlog, updatePostBlog, deletePostBlog,
     getAllPostBlogs, getSinglePostBlog,
-    likePostBlog, dislikePostBlog
+    likePostBlog, dislikePostBlog, uploadImageBlog
 }

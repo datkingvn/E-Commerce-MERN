@@ -207,12 +207,64 @@ const updateUserByAdmin = asyncHandler(async (req, res) => {
         success: !!updatedUserResponse,
         updatedUser: updatedUserResponse ? updatedUserResponse : 'Something Went Wrong!'
     });
+});
 
+// Update Address User
+const updateUserAddress = asyncHandler(async (req, res) => {
+    const {_id} = req.user;
+
+    if (!req.body.address) throw new Error('Cannot Update User - Missing Address!');
+
+    // Kiểm tra địa chỉ User nhập vào đã tồn tại hay chưa
+    const existingUser = await userModel.findById(_id).select('address');
+    // includes() là một phương thức của mảng trong JavaScript, được sử dụng để kiểm tra xem một giá trị có tồn tại trong mảng hay không.
+    if (existingUser.address.includes(req.body.address)) {
+        return res.status(400).json({
+            success: false,
+            msg: 'This address already exists!'
+        });
+    };
+
+    const updatedUserResponse = await userModel.findByIdAndUpdate(_id, {$push: {address: req.body.address}}, {new: true}).select('-password -role -refreshToken');
+
+    return res.status(200).json({
+        success: !!updatedUserResponse,
+        updatedUser: updatedUserResponse ? updatedUserResponse : 'Something Went Wrong!'
+    });
+});
+
+// Update Cart
+const updateCart = asyncHandler(async (req, res) => {
+    const {_id} = req.user;
+    const {pid, quantity, color} = req.body;
+    if (!pid || !quantity || !color) throw new Error('Missing Inputs!');
+    const user = await userModel.findById(_id).select('user');
+    const alreadyProduct = user?.cart?.find(element => element.product.toString() === pid);
+
+    if (alreadyProduct){
+        if (alreadyProduct.color === color) {
+            const response = await userModel.updateOne(
+                {cart: {$elemMatch: alreadyProduct}}, // $elemMatch dùng để tìm kiếm và so khớp với phần tử trong mảng
+                {$set: {"cart.$.quantity": quantity}}, // $ được sử dụng để chỉ định chỉ mục của phần tử trong mảng muốn cập nhật.
+                {new: true});
+            return res.status(200).json({
+                success: !!response,
+                updatedUser: response ? response : 'Something Went Wrong!'
+            });
+        }
+    } else {
+        const updateCartResponse = await userModel.findByIdAndUpdate(_id, {$push: {cart: {product: pid, quantity, color}}}, {new: true});
+        return res.status(200).json({
+            success: !!updateCartResponse,
+            updatedUser: updateCartResponse ? updateCartResponse : 'Something Went Wrong!'
+        });
+    }
 });
 module.exports = {
     userRegister, userLogin, userLogout,
     getSingleUser, getAllUsers,
     refreshAccessToken,
     forgotPassword, resetPassword,
-    deleteUser, updateUser, updateUserByAdmin
+    deleteUser, updateUser, updateUserByAdmin, updateUserAddress,
+    updateCart
 }

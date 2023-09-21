@@ -1,4 +1,4 @@
-const productModel = require('../models/productModel');
+const ProductModel = require('../models/ProductModel');
 const asyncHandler = require('express-async-handler');
 const slugify = require('slugify');
 
@@ -6,7 +6,7 @@ const slugify = require('slugify');
 const createProduct = asyncHandler(async (req, res) => {
     if (Object.keys(req.body).length === 0) throw new Error('Missing Input!');
     if (req.body && req.body.title) req.body.slug = slugify(req.body.title); // Chuyển title sang slug
-    const newProduct = await productModel.create(req.body);
+    const newProduct = await ProductModel.create(req.body);
     return res.status(200).json({
         success: !!newProduct,
         createdProduct: newProduct ? newProduct : 'Cannot Create New Product!'
@@ -16,7 +16,7 @@ const createProduct = asyncHandler(async (req, res) => {
 // Get Single Product
 const getSingleProduct = asyncHandler(async (req, res) => {
     const {pid} = req.params;
-    const product = await productModel.findById(pid);
+    const product = await ProductModel.findById(pid);
     return res.status(200).json({
         success: !!product,
         productData: product ? product : 'Cannot Find Product!'
@@ -38,7 +38,7 @@ const getAllProduct = asyncHandler(async (req, res) => {
 
     // Filtering
     if (queries.title) formatedQueries.title = {$regex: queries.title, $options: 'i'}; // $regex: queries.title tìm kiếm theo tên, $option: 'i' không phân biệt chữ hoa, thường
-    let queryCommand = productModel.find(formatedQueries);
+    let queryCommand = ProductModel.find(formatedQueries);
 
     // Sorting
     if (req.query.sort) {
@@ -62,7 +62,7 @@ const getAllProduct = asyncHandler(async (req, res) => {
     // Execute query
     queryCommand.exec()
         .then(async (reponse) => {
-            const matchedProductCount = await productModel.countDocuments(formatedQueries);
+            const matchedProductCount = await ProductModel.countDocuments(formatedQueries);
             return res.status(200).json({
                 success: true,
                 matchedProductCount: matchedProductCount,
@@ -81,7 +81,7 @@ const getAllProduct = asyncHandler(async (req, res) => {
 const updateProduct = asyncHandler(async (req, res) => {
     const {pid} = req.params;
     if (req.body && req.body.title) req.body.slug = slugify(req.body.title)
-    const updatedProductResponse = await productModel.findByIdAndUpdate(pid, req.body, {new: true});
+    const updatedProductResponse = await ProductModel.findByIdAndUpdate(pid, req.body, {new: true});
     return res.status(200).json({
         success: !!updatedProductResponse,
         updatedProduct: updatedProductResponse ? updatedProductResponse : 'Cannot Update Product!'
@@ -91,7 +91,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 // Delete Product
 const deleteProduct = asyncHandler(async (req, res) => {
     const {pid} = req.params;
-    const deleledProductResponse = await productModel.findByIdAndDelete(pid);
+    const deleledProductResponse = await ProductModel.findByIdAndDelete(pid);
     return res.status(200).json({
         success: !!deleledProductResponse,
         deletedProduct: deleledProductResponse ? deleledProductResponse : 'Cannot Delete Product!'
@@ -103,13 +103,13 @@ const ratings = asyncHandler(async (req, res) => {
     const {_id} = req.user;
     const {star, comment, pid} = req.body;
     if (!star && !pid) throw new Error('Missing Something :(');
-    const ratingProduct = await productModel.findById(pid);
+    const ratingProduct = await ProductModel.findById(pid);
     const alreadyRating = ratingProduct?.ratings?.find(element => element.votedBy.toString() === _id);
 
     if (alreadyRating) {
         // update star & comment
         //  Trong MongoDB, $set được sử dụng để cập nhật giá trị của một trường trong tài liệu. Khi muốn cập nhật một trường nằm trong một phần tử cụ thể của một mảng, ta sử dụng $ để chỉ định phần tử đó.
-        await productModel.updateOne({
+        await ProductModel.updateOne({
             ratings: {$elemMatch: alreadyRating}
         }, {
             $set: {
@@ -119,7 +119,7 @@ const ratings = asyncHandler(async (req, res) => {
         })
     } else {
         // add star & comment
-        const ratingUpdateResponse = await productModel.findByIdAndUpdate(
+        const ratingUpdateResponse = await ProductModel.findByIdAndUpdate(
             // $push được sử dụng để thêm một giá trị vào một mảng đã tồn tại trong một tài liệu (document).
             pid, {
                 $push: {
@@ -130,7 +130,7 @@ const ratings = asyncHandler(async (req, res) => {
     }
 
     // Sum ratings
-    const updatedProduct = await productModel.findById(pid);
+    const updatedProduct = await ProductModel.findById(pid);
     const ratingCount = updatedProduct.ratings.length;
     // sum là giá trị tích lũy, ban đầu có giá trị là 0, element là phần tử hiện tại trong quá trình lặp.
     const sumRatings = updatedProduct.ratings.reduce((sum, element) => sum + +element.star, 0);
@@ -144,8 +144,20 @@ const ratings = asyncHandler(async (req, res) => {
     })
 });
 
+const uploadImagesProduct = asyncHandler(async (req, res) => {
+    const {pid} = req.params
+    if (!req.files) throw new Error('No Images Upload');
+    // $each cho phép chúng ta thêm nhiều giá trị vào mảng images của tài liệu được cập nhật.
+    const uploadImageResponse = await ProductModel.findByIdAndUpdate(pid, {$push: {images: {$each: req.files.map(element => element.path)}}}, {new: true});
+    return res.status(200).json({
+        status: !!uploadImageResponse,
+        updatedProduct: uploadImageResponse ? uploadImageResponse : 'Upload Images Failed!'
+    });
+});
+
 module.exports = {
     createProduct, getSingleProduct, getAllProduct,
     updateProduct, deleteProduct,
-    ratings
+    ratings,
+    uploadImagesProduct
 }

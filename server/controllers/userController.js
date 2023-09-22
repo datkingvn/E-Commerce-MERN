@@ -215,16 +215,6 @@ const updateUserAddress = asyncHandler(async (req, res) => {
 
     if (!req.body.address) throw new Error('Cannot Update User - Missing Address!');
 
-    // Kiểm tra địa chỉ User nhập vào đã tồn tại hay chưa
-    const existingUser = await userModel.findById(_id).select('address');
-    // includes() là một phương thức của mảng trong JavaScript, được sử dụng để kiểm tra xem một giá trị có tồn tại trong mảng hay không.
-    if (existingUser.address.includes(req.body.address)) {
-        return res.status(400).json({
-            success: false,
-            msg: 'This address already exists!'
-        });
-    };
-
     const updatedUserResponse = await userModel.findByIdAndUpdate(_id, {$push: {address: req.body.address}}, {new: true}).select('-password -role -refreshToken');
 
     return res.status(200).json({

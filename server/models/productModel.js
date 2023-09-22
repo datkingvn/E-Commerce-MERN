@@ -1,7 +1,7 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 // Product collection schema
-const productSchema = new mongoose.Schema({
+const ProductSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
@@ -10,11 +10,11 @@ const productSchema = new mongoose.Schema({
     slug: {
         type: String,
         required: true,
-        unique: true,
+        // unique: true,
         lowercase: true
     },
     description: {
-        type: String,
+        type: Array,
         required: true
     },
     brand: {
@@ -26,8 +26,8 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     category: {
-        type: mongoose.Types.ObjectId,
-        ref: 'Category'
+        type: String,
+        required: true
     },
     quantity: {
         type: Number,
@@ -42,7 +42,7 @@ const productSchema = new mongoose.Schema({
     },
     color: {
         type: String,
-        enum: ['Black', 'Grown', 'Red'] // Chỉ nằm trong giá trị cho trước
+        required: true
     },
     ratings: [
         {
@@ -66,4 +66,9 @@ const productSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('Product', productSchema)
+// Check if the model already exists
+const ProductModel = mongoose.models.Product
+    ? mongoose.models.Product
+    : mongoose.model('Product', ProductSchema);
+
+module.exports = ProductModel;

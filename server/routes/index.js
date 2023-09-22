@@ -6,6 +6,7 @@ const brandRoute = require('../routes/brandRoute');
 const couponRoute = require('../routes/couponRoute');
 const blogCategoryRoute = require('../routes/blogCategoryRoute');
 const orderRoute = require('../routes/orderRoute');
+const insertFakeDataRoute = require('../routes/insertFakeDataRoute');
 const {notFound, errorHandler} = require('../middlewares/errorHandler');
 const initRouters = (app) => {
     app.use('/api/user', userRouter);
@@ -15,6 +16,7 @@ const initRouters = (app) => {
     app.use('/api/brand', brandRoute);
     app.use('/api/coupon', couponRoute);
     app.use('/api/order', orderRoute);
+    app.use('/api/insert-fake-data', insertFakeDataRoute);
     app.use('/api/blog-category', blogCategoryRoute);
 
 

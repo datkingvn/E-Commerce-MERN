@@ -3,7 +3,7 @@ import React from "react";
 const Banner = () => {
     return (
         <div className='w-full'>
-            <img src="https://digital-world-2.myshopify.com/cdn/shop/files/slideshow3-home2_1920x.jpg?v=1613166679" alt="banner" className='w-full object-contain'/>
+            <img src="https://i.pinimg.com/originals/71/4e/e3/714ee39c8e5b697567901216f5e1848e.jpg" alt="banner" className='h-[360px] w-full object-cover'/>
         </div>
     )
 }

@@ -12,7 +12,7 @@ module.exports = {
       width: {
         'main': '1278px'
       },
-      backgroundColor: {
+      colors: {
         main: '#EF3131'
       }
     },

@@ -2,7 +2,11 @@ const path = {
     PUBLIC: '/',
     HOME: '',
     ALL: '*',
-    LOGIN: 'login'
+    LOGIN: 'login',
+    PRODUCTS: 'products',
+    BLOGS: 'blogs',
+    OUT_SERVICES: 'services',
+    FAQs: 'faqs',
 }
 
 export default path

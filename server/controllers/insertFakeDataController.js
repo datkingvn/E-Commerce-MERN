@@ -23,7 +23,8 @@ const fn = async (product) => {
         sold: Math.round(Math.random() * 100),
         images: product?.images,
         color: color,
-        thumb: product?.thumb
+        thumb: product?.thumb,
+        totalRatings: (Math.random() * 5).toFixed(1) //  làm tròn ở 1 chữ số thập phân đầu tiên
     });
 };
 

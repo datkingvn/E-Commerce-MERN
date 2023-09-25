@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
-import {apiGetProducts} from "../apis/productAPI";
-import {Product} from "./index";
+import {apiGetProducts} from "../../../apis/productAPI";
+import {Product} from "../../index";
 import Slider from "react-slick";
 
 const tabs = [
@@ -15,7 +15,7 @@ const settings = {
     slidesToShow: 3,
     slidesToScroll: 1
 };
-const BestSeller = () => {
+const ProductTab = () => {
     const [bestSellers, setBestSellers] = useState(null);
     const [newProducts, setNewProducts] = useState(null);
     const [activatedTab, setActivatedTab] = useState(1);
@@ -62,4 +62,4 @@ const BestSeller = () => {
         </div>
     )
 }
-export default BestSeller
+export default ProductTab

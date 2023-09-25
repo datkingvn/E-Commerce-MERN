@@ -1,10 +1,10 @@
 import React, {useState} from "react";
-import {formatMoney} from "../utils/helpers";
-import new_label from '../assets/new.png';
-import trending_label from '../assets/trending.png';
-import {renderStarFromNumber} from "../utils/helpers";
-import {SelectOption} from './index'
-import icons from "../utils/icons";
+import {formatMoney} from "../../../utils/helpers";
+import new_label from '../../../assets/new.png';
+import trending_label from '../../../assets/trending.png';
+import {renderStarFromNumber} from "../../../utils/helpers";
+import {SelectOption} from '../../index'
+import icons from "../../../utils/icons";
 
 const {AiFillEye, AiFillHeart, IoMenu} = icons
 

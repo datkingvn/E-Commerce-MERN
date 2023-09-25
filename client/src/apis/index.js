@@ -1,1 +1,2 @@
-export * from './appAPI'
+export * from './categoryAPI'
+export * from './productAPI'

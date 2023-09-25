@@ -44,7 +44,7 @@ const ProductTab = () => {
             <div className='flex text-[20px] pb-4 ml-[-32px]'>
                 {tabs.map(el => (
                     <span key={el.id}
-                          className={`font-semibold capitalize px-8 border-r text-gray-400 cursor-pointer ${activatedTab === el.id ? 'text-gray-900' : ''}`}
+                          className={`font-semibold uppercase px-8 border-r text-gray-400 cursor-pointer ${activatedTab === el.id ? 'text-gray-900' : ''}`}
                           onClick={() => setActivatedTab(el.id)}>{el.name}</span>
                 ))}
             </div>

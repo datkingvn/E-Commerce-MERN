@@ -17,7 +17,7 @@ const DealDaily = () => {
 
     const fetchDealDaily = async () => {
         const response = await apiGetProducts({limit: 1, page: Math.round(Math.random() * 20)});
-        if (response.success) setDealDaily(response.productData[0]);
+        if (response.success) setDealDaily(response.productsData[0]);
     };
 
     useEffect(() => {

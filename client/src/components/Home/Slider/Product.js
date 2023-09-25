@@ -8,7 +8,7 @@ import icons from "../../../utils/icons";
 
 const {AiFillEye, AiFillHeart, IoMenu} = icons
 
-const Product = ({productData, isNew}) => {
+const Product = ({productsData, isNew}) => {
     const [isShowOption, setIsShowOption] = useState(false)
     return (
         <div className='w-full text-base px-[10px]'>
@@ -29,15 +29,15 @@ const Product = ({productData, isNew}) => {
                             <SelectOption icon={<IoMenu/>}/>
                             <SelectOption icon={<AiFillEye/>}/>
                         </div>}
-                    <img src={productData?.thumb || 'https://i.imgur.com/3nUenJZ.jpg'} alt=''
+                    <img src={productsData?.thumb || 'https://i.imgur.com/3nUenJZ.jpg'} alt=''
                          className='w-[274px] h-[274px] object-cover'/>
                     <img src={isNew ? new_label : trending_label} alt=""
                          className='absolute w-[100px] h-[35px] top-0 right-[0] object-cover'/>
                 </div>
                 <div className='flex flex-col mt-[15px] items-start w-full gap-1'>
-                    <span className='flex h-4'>{renderStarFromNumber(productData?.totalRatings)}</span>
-                    <span className='line-clamp-1'>{productData?.title}</span>
-                    <span>{`${formatMoney(productData?.price)} VND`}</span>
+                    <span className='flex h-4'>{renderStarFromNumber(productsData?.totalRatings)}</span>
+                    <span className='line-clamp-1'>{productsData?.title}</span>
+                    <span>{`${formatMoney(productsData?.price)} VND`}</span>
                 </div>
             </div>
         </div>

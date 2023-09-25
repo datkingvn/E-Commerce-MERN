@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {apiGetProducts} from "../../../apis/productAPI";
+import {apiGetProducts} from "../../../apis";
 import {Product} from "../../index";
 import Slider from "react-slick";
 
@@ -24,10 +24,10 @@ const ProductTab = () => {
     const fetchProducts = async () => {
         const response = await Promise.all([apiGetProducts({sort: '-sold'}), apiGetProducts({sort: '-createdAt'})]); // Sử dụng Promise.all tất cả các hàm bất đồng bộ sẽ được gọi cùng 1 lúc
         if (response[0]?.success) {
-            setBestSellers(response[0].productData);
-            setProducts(response[0].productData)
+            setBestSellers(response[0].productsData);
+            setProducts(response[0].productsData)
         }
-        if (response[1]?.success) setNewProducts(response[1].productData);
+        if (response[1]?.success) setNewProducts(response[1].productsData);
     };
 
     useEffect(() => {
@@ -51,7 +51,7 @@ const ProductTab = () => {
             <div className='mt-4 mx-[-10px] border-t-2 pt-4 border-main'>
                 <Slider {...settings}>
                     {products?.map(el => (
-                        <Product key={el.id} pid={el.id} productData={el} isNew={activatedTab !== 1}/>
+                        <Product key={el.id} pid={el.id} productsData={el} isNew={activatedTab !== 1}/>
                     ))}
                 </Slider>
             </div>

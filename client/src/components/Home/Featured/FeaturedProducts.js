@@ -7,7 +7,6 @@ const FeaturedProducts = () => {
 
     const fetchProducts = async () => {
         const response = await apiGetProducts({limit: 9});
-        console.log("API Response:", response);
         if (response.success) setProducts(response.productsData);
     };
 

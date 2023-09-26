@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {Route, Routes} from 'react-router-dom';
 import {Login, Home, Public} from './pages/public';
 import path from "./utils/path";
-import {getCategories} from './store/createAsyncThunk';
+import {getCategories} from './store/categories/createAsyncThunk';
 import {useDispatch} from "react-redux";
 
 function App() {

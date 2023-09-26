@@ -1,37 +1,32 @@
 import React, {useEffect, useState} from "react";
 import {apiGetProducts} from "../../../apis";
-import {Product} from "../../index";
-import Slider from "react-slick";
+import {CustomSlider} from "../../index";
+import {getNewProducts} from "../../../store/products/createAsyncThunk";
+import {useDispatch, useSelector} from "react-redux";
 
 const tabs = [
     {id: 1, name: 'Best Seller'},
     {id: 2, name: 'New Arrivals'}
 ];
 
-const settings = {
-    dots: false,
-    infinite: false,
-    speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 1
-};
 const ProductTab = () => {
     const [bestSellers, setBestSellers] = useState(null);
-    const [newProducts, setNewProducts] = useState(null);
     const [activatedTab, setActivatedTab] = useState(1);
     const [products, setProducts] = useState(null);
+    const dispatch = useDispatch();
+    const {newProducts} = useSelector(state => state.products)
 
     const fetchProducts = async () => {
-        const response = await Promise.all([apiGetProducts({sort: '-sold'}), apiGetProducts({sort: '-createdAt'})]); // Sử dụng Promise.all tất cả các hàm bất đồng bộ sẽ được gọi cùng 1 lúc
-        if (response[0]?.success) {
-            setBestSellers(response[0].productsData);
-            setProducts(response[0].productsData)
+        const response = await apiGetProducts({sort: '-sold'});
+        if (response.success) {
+            setBestSellers(response.productsData);
+            setProducts(response.productsData)
         }
-        if (response[1]?.success) setNewProducts(response[1].productsData);
     };
 
     useEffect(() => {
-        fetchProducts()
+        fetchProducts();
+        dispatch(getNewProducts()) // Gửi action để lấy danh sách sản phẩm mới
     }, []);
 
     useEffect(() => {
@@ -49,15 +44,15 @@ const ProductTab = () => {
                 ))}
             </div>
             <div className='mt-4 mx-[-10px] border-t-2 pt-4 border-main'>
-                <Slider {...settings}>
-                    {products?.map(el => (
-                        <Product key={el.id} pid={el.id} productsData={el} isNew={activatedTab !== 1}/>
-                    ))}
-                </Slider>
+                <CustomSlider products={products} activatedTab={activatedTab}/>
             </div>
             <div className='w-full flex gap-4 mt-4'>
-                <img src='https://digital-world-2.myshopify.com/cdn/shop/files/banner2-home2_2000x_crop_center.png?v=1613166657' alt='banner' className='flex-1 object-contain'/>
-                <img src='https://digital-world-2.myshopify.com/cdn/shop/files/banner1-home2_2000x_crop_center.png?v=1613166657' alt='banner' className='flex-1 object-contain'/>
+                <img
+                    src='https://digital-world-2.myshopify.com/cdn/shop/files/banner2-home2_2000x_crop_center.png?v=1613166657'
+                    alt='banner' className='flex-1 object-contain'/>
+                <img
+                    src='https://digital-world-2.myshopify.com/cdn/shop/files/banner1-home2_2000x_crop_center.png?v=1613166657'
+                    alt='banner' className='flex-1 object-contain'/>
             </div>
         </div>
     )

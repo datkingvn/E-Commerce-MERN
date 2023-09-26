@@ -1,7 +1,7 @@
 import {createSlice} from "@reduxjs/toolkit";
 import * as createAsyncThunk from './createAsyncThunk'
 
-export const appSlice = createSlice({
+export const categorySlice = createSlice({
     name: 'app',
 
     initialState: {
@@ -31,6 +31,6 @@ export const appSlice = createSlice({
         });
     }
 })
-// export const { } = appSlice.actions
+// export const { } = categorySlice.actions
 
-export default appSlice.reducer
+export default categorySlice.reducer

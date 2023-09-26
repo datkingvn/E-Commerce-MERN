@@ -12,7 +12,7 @@ const createProductCategory = asyncHandler(async (req, res) => {
 
 // Get All Product Categies
 const getAllProductCategories = asyncHandler(async (req, res) => {
-    const productCategoryResponse = await ProductCategoryModel.find().select('title _id');
+    const productCategoryResponse = await ProductCategoryModel.find();
     return res.status(200).json({
         success: !!productCategoryResponse,
         productCategories: productCategoryResponse ? productCategoryResponse : 'Cannot Get All Product-Category'
